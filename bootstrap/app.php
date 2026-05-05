@@ -1,9 +1,9 @@
 <?php
 
+use App\Http\Middleware\CorsMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Http\Request;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -13,22 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->append(function (Request $request, Closure $next) {
-            if ($request->getMethod() === 'OPTIONS') {
-                return response('', 204)
-                    ->header('Access-Control-Allow-Origin', 'https://docu-flow-frontend.vercel.app')
-                    ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
-                    ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With');
-            }
-
-            $response = $next($request);
-
-            $response->headers->set('Access-Control-Allow-Origin', 'https://docu-flow-frontend.vercel.app');
-            $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-            $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, Accept, X-Requested-With');
-
-            return $response;
-        });
+        $middleware->append(CorsMiddleware::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
